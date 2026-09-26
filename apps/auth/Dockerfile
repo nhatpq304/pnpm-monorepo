@@ -5,6 +5,14 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/auth/package.json ./apps/auth/
 
+# Source is bind-mounted by docker-compose.dev.yaml; only dependencies are baked in.
+FROM base AS dev
+RUN pnpm install --frozen-lockfile --filter auth...
+COPY tsconfig.base.json ./
+WORKDIR /app/apps/auth
+EXPOSE 3000
+CMD ["pnpm", "start:dev"]
+
 FROM base AS build
 RUN pnpm install --frozen-lockfile --filter auth...
 COPY tsconfig.base.json ./

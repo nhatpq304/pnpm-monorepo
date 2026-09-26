@@ -1,0 +1,43 @@
+# Hot-reload setup: app sources are bind-mounted; node_modules stay in the image
+# (anonymous volumes) because host installs contain Windows-native binaries.
+# Watchers poll because file events from Windows bind mounts don't reach the container.
+name: pnpm-monorepo-dev
+
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+      target: dev
+    ports:
+      - '3000:3000'
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_ENV: dev
+      TSC_WATCHFILE: DynamicPriorityPolling
+      TSC_WATCHDIRECTORY: RecursiveDirectoryUsingDynamicPriorityPolling
+    volumes:
+      - ./apps/auth:/app/apps/auth
+      - /app/apps/auth/node_modules
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/health']
+      interval: 5s
+      retries: 20
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      target: dev
+    depends_on:
+      auth:
+        condition: service_healthy
+    ports:
+      - '4200:4200'
+    environment:
+      API_URL: http://auth:3000
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - /app/apps/frontend/node_modules
