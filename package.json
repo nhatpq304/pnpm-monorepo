@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev:auth": "pnpm --filter auth start"
+    "dev:auth": "pnpm --filter auth start",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:auth": "pnpm --filter auth build"
   },
   "keywords": [],
   "author": "",
