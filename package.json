@@ -4,10 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "pnpm run /^dev:/",
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev:auth": "pnpm --filter auth start",
+    "dev:auth": "pnpm --filter auth start:dev",
+    "build": "pnpm -r build",
     "build:frontend": "pnpm --filter frontend build",
-    "build:auth": "pnpm --filter auth build"
+    "build:auth": "pnpm --filter auth build",
+    "test": "pnpm run test:auth && pnpm run test:frontend",
+    "test:auth": "pnpm --filter auth test",
+    "test:frontend": "pnpm --filter frontend test --watch=false",
+    "lint": "pnpm -r --if-present lint",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "keywords": [],
   "author": "",
