@@ -14,8 +14,10 @@ service is removed.
 - Keycloak config lives in `infra/keycloak/` (not a pnpm package): multi-stage Dockerfile + realm file.
 - Realm file uses `${ENV}` placeholders; imported only when the realm does not exist yet.
 - Postgres has no folder: the official image creates the single `keycloak` DB/user from env.
-- Every environment-specific value comes from env. Dev compose has dev-only defaults
-  (`${VAR:-default}`); prod compose requires them (`${VAR:?}`).
+- `.env` holds only secrets (`POSTGRES_PASSWORD`, `KC_BOOTSTRAP_ADMIN_PASSWORD`) and the
+  environment selectors (`APP_ENV`, `BUILD_CONFIGURATION`). All other config is fixed in the compose
+  files. Dev compose gives secrets dev-only defaults (`${VAR:-default}`); prod compose requires them
+  (`${VAR:?}`). Frontend proxy targets are static, never env.
 - `auth-client` reads `AUTH_ISSUER`, `AUTH_JWKS_URI`, `AUTH_AUDIENCE` itself and fails fast.
   Issuer and JWKS URI are separate because tokens carry the public URL while services reach
   Keycloak by its internal hostname.
@@ -181,8 +183,9 @@ covers the no-`realm_access` case; new `auth-client-options.spec.ts` covers miss
 
 ### 6. `.env.example`
 
-Remove `JWT_PRIVATE_KEY`; document `POSTGRES_*`, `KC_BOOTSTRAP_ADMIN_*`, `KC_HOSTNAME`,
-`FRONTEND_URL`, `AUTH_ISSUER`, `AUTH_JWKS_URI`, `AUTH_AUDIENCE`.
+Remove `JWT_PRIVATE_KEY`; keep only `APP_ENV`, `BUILD_CONFIGURATION`, `POSTGRES_PASSWORD` and
+`KC_BOOTSTRAP_ADMIN_PASSWORD`. Each backend service's compose entry sets `AUTH_ISSUER`,
+`AUTH_JWKS_URI` and `AUTH_AUDIENCE` as fixed values.
 
 ## Verification
 
