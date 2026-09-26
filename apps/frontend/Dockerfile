@@ -11,7 +11,7 @@ COPY tsconfig.base.json ./
 FROM deps AS dev
 WORKDIR /app/apps/frontend
 EXPOSE 4200
-CMD ["pnpm", "exec", "ng", "serve", "--host", "0.0.0.0", "--poll", "1000", "--proxy-config", "proxy.conf.mjs"]
+CMD ["pnpm", "exec", "ng", "serve", "--host", "0.0.0.0", "--poll", "1000"]
 
 FROM deps AS build
 ARG BUILD_CONFIGURATION=production
