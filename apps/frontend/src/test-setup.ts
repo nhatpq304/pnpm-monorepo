@@ -9,7 +9,4 @@ import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-
 })
 class ZonelessTestModule {}
 
-getTestBed().initTestEnvironment(
-  [BrowserTestingModule, ZonelessTestModule],
-  platformBrowserTesting(),
-);
+getTestBed().initTestEnvironment([BrowserTestingModule, ZonelessTestModule], platformBrowserTesting());
