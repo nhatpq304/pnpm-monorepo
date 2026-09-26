@@ -20,7 +20,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['apps/auth/**/*.ts'],
+    files: ['apps/backend/**/*.ts'],
     languageOptions: {
       globals: globals.node,
     },

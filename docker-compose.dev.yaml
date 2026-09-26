@@ -1,43 +1,59 @@
 # Hot-reload setup: app sources are bind-mounted; node_modules stay in the image
 # (anonymous volumes) because host installs contain Windows-native binaries.
 # Watchers poll because file events from Windows bind mounts don't reach the container.
+# Values fall back to dev-only defaults when .env doesn't set them.
 name: pnpm-monorepo-dev
 
 services:
-  auth:
-    build:
-      context: .
-      dockerfile: apps/auth/Dockerfile
-      target: dev
-    ports:
-      - '3000:3000'
-    env_file:
-      - path: .env
-        required: false
+  postgres:
+    image: postgres:17-alpine
     environment:
-      APP_ENV: dev
-      TSC_WATCHFILE: DynamicPriorityPolling
-      TSC_WATCHDIRECTORY: RecursiveDirectoryUsingDynamicPriorityPolling
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak}
+    ports:
+      - '5432:5432'
     volumes:
-      - ./apps/auth:/app/apps/auth
-      - /app/apps/auth/node_modules
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/health']
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
       interval: 5s
-      retries: 20
+      retries: 10
+
+  keycloak:
+    build:
+      context: infra/keycloak
+      target: dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-keycloak}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
+      KC_HOSTNAME: ${KC_HOSTNAME:-http://localhost:8080}
+      KC_HEALTH_ENABLED: 'true'
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
+    healthcheck:
+      test: ['CMD', 'bash', '/opt/keycloak/healthcheck.sh']
+      interval: 5s
+      retries: 30
 
   frontend:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile
       target: dev
-    depends_on:
-      auth:
-        condition: service_healthy
     ports:
       - '4200:4200'
-    environment:
-      API_URL: http://auth:3000
     volumes:
       - ./apps/frontend:/app/apps/frontend
       - /app/apps/frontend/node_modules
+
+volumes:
+  postgres-data:

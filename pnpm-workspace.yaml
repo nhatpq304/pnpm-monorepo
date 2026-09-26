@@ -1,5 +1,7 @@
 packages:
   - 'apps/*'
+  - 'apps/backend/*'
+  - 'apps/backend/libs/*'
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true

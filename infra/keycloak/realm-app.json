@@ -1,0 +1,56 @@
+{
+  "realm": "app",
+  "enabled": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      { "name": "user", "description": "Every registered user" },
+      { "name": "admin", "description": "Administrators" },
+      { "name": "offline_access", "description": "Keycloak built-in: offline tokens" },
+      { "name": "uma_authorization", "description": "Keycloak built-in: UMA authorization" },
+      {
+        "name": "default-roles-app",
+        "composite": true,
+        "composites": { "realm": ["offline_access", "uma_authorization", "user"] }
+      }
+    ]
+  },
+  "defaultRole": { "name": "default-roles-app" },
+  "clients": [
+    {
+      "clientId": "frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["${FRONTEND_URL}/*"],
+      "webOrigins": ["${FRONTEND_URL}"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${FRONTEND_URL}/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

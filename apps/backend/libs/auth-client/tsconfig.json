@@ -1,0 +1,13 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "resolvePackageJsonExports": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "strictPropertyInitialization": false,
+    "types": ["vitest/globals", "node"]
+  }
+}
