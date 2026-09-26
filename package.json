@@ -10,10 +10,13 @@
     "build": "pnpm -r build",
     "build:frontend": "pnpm --filter frontend build",
     "build:auth": "pnpm --filter auth build",
-    "test": "pnpm run test:auth && pnpm run test:frontend",
+    "test": "pnpm -r test",
     "test:auth": "pnpm --filter auth test",
-    "test:frontend": "pnpm --filter frontend test --watch=false",
-    "lint": "pnpm -r --if-present lint",
+    "test:frontend": "pnpm --filter frontend test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
@@ -30,5 +33,14 @@
     }
   },
   "packageManager": "pnpm@12.6.0",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "angular-eslint": "^20.7.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "typescript-eslint": "^8.70.1"
+  }
 }
